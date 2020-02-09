@@ -1,0 +1,44 @@
+alertmanager:
+  enabled: false
+
+grafana:
+  plugins:
+  - grafana-piechart-panel
+  - grafana-worldmap-panel
+  dashboardProviders:
+   dashboardproviders.yaml:
+     apiVersion: 1
+     providers:
+     - name: 'plex'
+       orgId: 1
+       folder: 'Plex'
+       type: file
+       disableDeletion: true
+       editable: true
+       options:
+         path: /var/lib/grafana/dashboards/plex
+  dashboards:
+    plex:
+      varken:
+        gnetId: 9585
+        datasource: InfluxDb-Varken
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - grafana.simplyzee.dev
+    tls:
+      - secretName: grafana-sz-tls
+        hosts:
+          - grafana.simplyzee.dev
+
+prometheusSpec:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 200Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi

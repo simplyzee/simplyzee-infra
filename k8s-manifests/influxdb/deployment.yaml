@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb
+  namespace: influxdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: influxdb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      hostname: influxdb
+      restartPolicy: Always
+      containers:
+      - name: influxdb
+        image: influxdb
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8086
+        #livenessProbe:
+        #  failureThreshold: 10000
+        #  httpGet:
+        #    path: /
+        #    port: 3000
+        volumeMounts:
+          - mountPath: /var/lib/influxdb
+            name: data
+          - mountPath: /etc/influxdb
+            name: config
+            readOnly: true
+      volumes:
+        - name: data
+          hostPath:
+            path: /opt/influxdb
+        - name: config
+          configMap:
+            name: influxdb-config
+            items:
+              - key: influxdb.conf
+                path: influxdb.conf
